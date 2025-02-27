@@ -17,7 +17,7 @@ namespace NeuroSdk.Editor
         [MenuItem("Window/Neuro SDK/Action State Machine Editor")]
         static void ShowEditor()
         {
-            GetWindow<ActionStateMachineEditorWindow>();
+            ActionStateMachineEditorWindow window = GetWindow<ActionStateMachineEditorWindow>();
         }
 
         private void Awake()
@@ -76,11 +76,12 @@ namespace NeuroSdk.Editor
             if(Event.current.type == EventType.MouseDown
                 && Event.current.button == 1)
             {
+                Vector2 pos = Event.current.mousePosition - stateSize / 2f;
                 GenericMenu menu = new();
                 menu.AddItem(new GUIContent("Add state"), false, () =>
                 {
                     ActionState newState = CreateInstance<ActionState>();
-                    newState.editorPos = Event.current.mousePosition - stateSize / 2f;
+                    newState.editorPos = pos;
                     newState.stateName = "State " + stateMachine.states.Count;
                     stateMachine.states.Add(newState);
                 });
@@ -93,8 +94,9 @@ namespace NeuroSdk.Editor
         {
             lastSelectionID = Selection.activeInstanceID;
             Debug.Log($"Selection changed: {Selection.activeInstanceID}");
-            if(Selection.activeGameObject.TryGetComponent(out ActionStateMachine stateMachine))
+            if(Selection.activeGameObject != null && Selection.activeGameObject.TryGetComponent(out ActionStateMachine stateMachine))
             {
+                Debug.Log("Found state machine");
                 this.stateMachine = stateMachine;
                 LoadStateMachine();
             }
@@ -201,12 +203,25 @@ namespace NeuroSdk.Editor
                 return;
             }
 
-            Vector3 startPos = stateMachine.states[transition.startIndex].EditorRect.center;
-            Vector3 endPos = stateMachine.states[transition.endIndex].EditorRect.center;
+            Vector2 startPos = stateMachine.states[transition.startIndex].EditorRect.center;
+            Vector2 endPos = stateMachine.states[transition.endIndex].EditorRect.center;
+            Vector2 center = (startPos + endPos) / 2f;
+
+            Vector2 direction = (endPos - startPos).normalized;
+            Vector2 normal = new(-direction.y, direction.x);
+            Vector3[] triangle = new Vector3[]
+            {
+                center + direction * 5,
+                center - direction * 5 - normal * 5,
+                center - direction * 5 + normal * 5,
+            };
 
             //Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.black, null, 1);
             // TODO: Project line start to edge
+            // TODO: Handle multiple transitions between same states
+            // TODO: Handle self transitions
             Handles.DrawBezier(startPos, endPos, endPos, startPos, Color.white, null, 3f);
+            Handles.DrawAAConvexPolygon(triangle);
         }
     }
 }
