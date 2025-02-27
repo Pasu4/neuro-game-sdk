@@ -7,8 +7,8 @@ namespace NeuroSdk.Actions
     [Serializable]
     public class ActionStateTransition : ScriptableObject
     {
-        public int startIndex;
-        public int endIndex;
+        public string startStateName = "";
+        public string endStateName = "";
         public int value = 42;
     }
 }

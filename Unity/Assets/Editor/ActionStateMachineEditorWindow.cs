@@ -106,6 +106,9 @@ namespace NeuroSdk.Editor
             }
         }
 
+        /// <summary>
+        /// Loads the state machine from the currently selected GameObject.
+        /// </summary>
         void LoadStateMachine()
         {
             if(stateMachine == null) // Should never happen
@@ -127,15 +130,15 @@ namespace NeuroSdk.Editor
                 stateMachine.transitions.RemoveAll(t => t == null);
             }
 
-            if(!stateMachine.states.Any(s => s.isStartState))
-            {
-                Debug.LogWarning("State machine has no start state, creating.");
-                ActionState startState = CreateInstance<ActionState>();
-                startState.stateName = "Start";
-                startState.isStartState = true;
-                startState.editorPos = new Vector2(0, 0);
-                stateMachine.states.Add(startState);
-            }
+            //if(!stateMachine.states.Any(s => s.isStartState))
+            //{
+            //    Debug.LogWarning("State machine has no start state, creating.");
+            //    ActionState startState = CreateInstance<ActionState>();
+            //    startState.stateName = "Start";
+            //    startState.isStartState = true;
+            //    startState.editorPos = new Vector2(0, 0);
+            //    stateMachine.states.Add(startState);
+            //}
         }
 
         void Clear()
@@ -143,6 +146,10 @@ namespace NeuroSdk.Editor
             // TODO
         }
 
+        /// <summary>
+        /// Draws the GUI for an action state.
+        /// </summary>
+        /// <param name="id">The index of the state in the state machine.</param>
         void DrawActionState(int id)
         {
             if(stateMachine == null) // Should never happen
@@ -195,6 +202,10 @@ namespace NeuroSdk.Editor
             }
         }
 
+        /// <summary>
+        /// Draws a transition between two states.
+        /// </summary>
+        /// <param name="transition">The transition to draw.</param>
         void DrawTransition(ActionStateTransition transition)
         {
             if(stateMachine == null) // Should never happen
