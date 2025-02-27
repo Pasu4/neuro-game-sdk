@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using NeuroSdk.Actions;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace NeuroSdk.Editor
 {
@@ -13,6 +14,8 @@ namespace NeuroSdk.Editor
         int lastSelectionID;
         ActionStateMachine? stateMachine;
         ActionState? addingTransitionState;
+        List<ActionState> statesToDelete = new();
+        List<ActionStateTransition> transitionsToDelete = new();
 
         [MenuItem("Window/Neuro SDK/Action State Machine Editor")]
         static void ShowEditor()
@@ -80,14 +83,25 @@ namespace NeuroSdk.Editor
                 GenericMenu menu = new();
                 menu.AddItem(new GUIContent("Add state"), false, () =>
                 {
-                    ActionState newState = CreateInstance<ActionState>();
-                    newState.editorPos = pos;
-                    newState.stateName = "State " + stateMachine.states.Count;
-                    stateMachine.states.Add(newState);
+                    stateMachine.AddState(stateMachine.GetUniqueStateName(), false, pos);
                 });
                 menu.ShowAsContext();
                 Event.current.Use();
             }
+
+            // Handle deleting states and transitions
+            // Not handled directly in the GUI because it would mess up the indices
+            bool doRepaint = statesToDelete.Count > 0 || transitionsToDelete.Count > 0;
+
+            foreach(ActionState state in statesToDelete)
+                stateMachine.RemoveState(state);
+            statesToDelete.Clear();
+
+            foreach(ActionStateTransition transition in transitionsToDelete)
+                stateMachine.RemoveTransition(transition);
+            transitionsToDelete.Clear();
+
+            if(doRepaint) Repaint();
         }
 
         private void OnSelectionChange()
@@ -118,17 +132,17 @@ namespace NeuroSdk.Editor
             }
             
             // Check for null states and transitions
-            if(stateMachine.states.Any(s => s == null))
-            {
-                Debug.LogWarning("State machine contains null states, removing.");
-                stateMachine.states.RemoveAll(s => s == null);
-            }
+            //if(stateMachine.states.Any(s => s == null))
+            //{
+            //    Debug.LogWarning("State machine contains null states, removing.");
+            //    stateMachine.states.RemoveAll(s => s == null);
+            //}
 
-            if(stateMachine.transitions.Any(t => t == null))
-            {
-                Debug.LogWarning("State machine contains null transitions, removing.");
-                stateMachine.transitions.RemoveAll(t => t == null);
-            }
+            //if(stateMachine.transitions.Any(t => t == null))
+            //{
+            //    Debug.LogWarning("State machine contains null transitions, removing.");
+            //    stateMachine.transitions.RemoveAll(t => t == null);
+            //}
 
             //if(!stateMachine.states.Any(s => s.isStartState))
             //{
@@ -149,8 +163,8 @@ namespace NeuroSdk.Editor
         /// <summary>
         /// Draws the GUI for an action state.
         /// </summary>
-        /// <param name="id">The index of the state in the state machine.</param>
-        void DrawActionState(int id)
+        /// <param name="index">The index of the state in the state machine.</param>
+        void DrawActionState(int index)
         {
             if(stateMachine == null) // Should never happen
             {
@@ -158,7 +172,7 @@ namespace NeuroSdk.Editor
                 return;
             }
 
-            ActionState state = stateMachine.states[id];
+            ActionState state = stateMachine.states[index];
 
             Rect clickArea = new(0, 0, state.EditorRect.width, state.EditorRect.height);
 
@@ -169,10 +183,7 @@ namespace NeuroSdk.Editor
             {
                 if(addingTransitionState != null)
                 {
-                    ActionStateTransition newTransition = CreateInstance<ActionStateTransition>();
-                    newTransition.startIndex = stateMachine.states.IndexOf(addingTransitionState);
-                    newTransition.endIndex = stateMachine.states.IndexOf(state);
-                    stateMachine.transitions.Add(newTransition);
+                    stateMachine.AddTransition(addingTransitionState, state);
                     addingTransitionState = null;
                     Repaint();
                 }
@@ -192,6 +203,10 @@ namespace NeuroSdk.Editor
                 menu.AddItem(new GUIContent("Add transition"), false, () =>
                 {
                     addingTransitionState = state;
+                });
+                menu.AddItem(new GUIContent("Delete state"), false, () =>
+                {
+                    statesToDelete.Add(state);
                 });
                 menu.ShowAsContext();
                 Event.current.Use();
@@ -214,8 +229,17 @@ namespace NeuroSdk.Editor
                 return;
             }
 
-            Vector2 startPos = stateMachine.states[transition.startIndex].EditorRect.center;
-            Vector2 endPos = stateMachine.states[transition.endIndex].EditorRect.center;
+            ActionState? startState = stateMachine.GetState(transition.startStateName);
+            ActionState? endState = stateMachine.GetState(transition.endStateName);
+
+            if(startState == null || endState == null)
+            {
+                Debug.LogWarning("Transition references invalid state.");
+                return;
+            }
+
+            Vector2 startPos = startState.EditorRect.center;
+            Vector2 endPos = endState.EditorRect.center;
             Vector2 center = (startPos + endPos) / 2f;
 
             Vector2 direction = (endPos - startPos).normalized;
@@ -233,6 +257,31 @@ namespace NeuroSdk.Editor
             // TODO: Handle self transitions
             Handles.DrawBezier(startPos, endPos, endPos, startPos, Color.white, null, 3f);
             Handles.DrawAAConvexPolygon(triangle);
+
+            float clickRange = 10f;
+
+            // Handle right click
+            if(Event.current.type == EventType.MouseDown
+                && Event.current.button == 1
+                && (Event.current.mousePosition - center).sqrMagnitude <= (clickRange * clickRange))
+            {
+                GenericMenu menu = new();
+                menu.AddItem(new GUIContent("Delete transition"), false, () =>
+                {
+                    transitionsToDelete.Add(transition);
+                });
+                menu.ShowAsContext();
+                Event.current.Use();
+            }
+
+            // Handle left click
+            if(Event.current.type == EventType.MouseDown
+                && Event.current.button == 0
+                && (Event.current.mousePosition - center).sqrMagnitude <= (clickRange * clickRange))
+            {
+                Debug.Log($"Clicked on transition from {startState.stateName} to {endState.stateName}");
+                Selection.activeObject = transition;
+            }
         }
     }
 }

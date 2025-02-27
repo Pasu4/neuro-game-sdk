@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace NeuroSdk.Actions
@@ -174,6 +175,15 @@ namespace NeuroSdk.Actions
         public bool RemoveTransition(ActionStateTransition transition)
         {
             return transitions.Remove(transition);
+        }
+
+        public string GetUniqueStateName()
+        {
+            int i = 0;
+            string name;
+            do name = $"State {i++}";
+            while(states.Any(s => s.stateName == name));
+            return name;
         }
     }
 }

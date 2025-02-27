@@ -5,7 +5,7 @@ using System;
 namespace NeuroSdk.Actions
 {
     [Serializable]
-    public class ActionState : ScriptableObject
+    public class ActionState : ScriptableObject // TODO: Custom inspector
     {
         public Rect EditorRect
         {
