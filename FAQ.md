@@ -1,4 +1,7 @@
-# FAQ <!-- Not sure if that is the right title, I think they were only ever asked once and not frequently  -->
+# FAQ
+
+Some of these questions were not answered officially, instead their answers were inferred by community members through observation.
+These sources are marked as "unofficial".
 
 ## Is there a standard way / best practice for conveying dialogue?
 
@@ -6,13 +9,13 @@
 > 
 > The context is being sent to Neuro and she will interpret it herself, as long as it's consistent throughout the game it doesn't matter how you signify speaker and other info.
 
-<!-- Source: https://github.com/VedalAI/neuro-game-sdk/issues/7#issuecomment-2533745279 -->
+[Source](https://github.com/VedalAI/neuro-game-sdk/issues/7#issuecomment-2533745279)
 
 ## How do I give Neuro persistent context?
 
 Right now, Neuro is in charge of what she remembers. If it is very important, you can send reminders every so often.
 
-<!-- Source: https://github.com/VedalAI/neuro-game-sdk/issues/7#issuecomment-2536405147 -->
+[Source](https://github.com/VedalAI/neuro-game-sdk/issues/7#issuecomment-2536405147)
 
 ## How do I best send large amounts of data?
 
@@ -24,7 +27,12 @@ Right now, Neuro is in charge of what she remembers. If it is very important, yo
 
 ## What is the maximum length of a context message / action description / etc.?
 
-(Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43)
+An exact limit is not defined.
+She can handle a decent amount, but sending too much ([such as the directory tree of a Unity project](https://github.com/VSC-NeuroPilot/neuropilot/issues/153)) will likely cause problems or crash her.
+
+[Source (unofficial)](https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-3276628168)
+
+<!-- Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43 for official confirmation -->
 
 ## How should the `state` of `actions/force` be formatted?
 
@@ -32,7 +40,11 @@ Right now, Neuro is in charge of what she remembers. If it is very important, yo
 
 ## How much assistance should Neuro get?
 
-(Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43)
+However much would make for the best content.
+
+[Source (unofficial)](https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-3276628168)
+
+<!-- Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43 for official confirmation -->
 
 ## When should I use `actions/force`?
 
@@ -44,8 +56,21 @@ Right now, Neuro is in charge of what she remembers. If it is very important, yo
 
 ## What happens when an `actions/force` arrives while Neuro is busy?
 
-(Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43)
+This depends on the `priority` parameter of the `actions/force`.
+
+[Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#force-actions)
 
 ## What happens if an `actions/force` gets filtered?
 
 (Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/49)
+
+## Can I send context between receiving an `action` and sending the result?
+
+(Waiting on https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-2854385371)
+
+## How long can I wait to send back an `action/result`?
+
+The `action/result` must be sent *as soon as possible*, meaning the only delay should be caused by network latency.
+
+[Source 1](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#action-result)
+| [Source 2 (unofficial)](https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-3276628168)
