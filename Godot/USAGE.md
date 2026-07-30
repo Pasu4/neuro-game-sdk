@@ -6,6 +6,10 @@ There is an example of a Tic Tac Toe game implemented with the Neuro API, which 
 
 For sending context messages, you can use the `Context.send(message: String, silent: bool)` function. 
 
+## Reading Character Metadata
+
+After the websocket startup acknowledgement arrives, the `Websocket` autoload exposes `character_id` and `character_display_name`. You can also connect to the `Websocket.character_changed` signal if you need to react when that metadata becomes available.
+
 ## Creating Custom Actions
 
 In order to create a custom action, you need to extend the `NeuroAction` class.
@@ -197,4 +201,42 @@ else Failure
         deactivate API
     end
 end
+```
+
+## Signals
+
+There a few signals built-in to the `Websocket` autoload you can use to know when Neuro connects or disconnects:
+
+* `Websocket.connected`
+
+* `Websocket.failed_to_connect(error: Error)`
+
+* `Websocket.disconnected(code: Code)`
+
+
+Keep in mind the `connected` signal is emitted as soon as the `Websocket` autoload can connect, which may be before non-autoload nodes are ready. If you need to check the connection after this point, you can simply check the `websocket_is_connected` bool.
+
+Since the Websocket has an autoload class name, you can connect to it from any script:
+
+```py
+# Some Node
+# ...
+func _ready() -> void:
+    if Websocket.websocket_is_connected:
+        neuro_connected()
+
+    Websocket.disconnected.connect(neuro_disconnected)
+    
+func neuro_connected() -> void:
+    print("Neuro is connected! Yipee!")
+
+	# Enable related features
+
+func neuro_disconnected(code: int) -> void:
+    push_warning("Neuro disconnected with code %d!" % code)
+
+    # Disable related features
+
+func neuro_failed_to_connect(err: Error) -> void:
+    push_warning("Neuro failed to connect with error: %s!" % str(err))
 ```
