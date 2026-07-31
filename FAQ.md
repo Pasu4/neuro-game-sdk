@@ -70,7 +70,7 @@ This depends on the `priority` parameter of the `actions/force`.
 
 (Waiting on https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-2854385371)
 
-## How do I prevent Neuro from using a specific action without running into race conditions?
+## How do I prevent Neuro from using a single-use action again without running into race conditions?
 
 You can unregister actions before sending an action result. This ensures that by the time Neuro receives the result, she can no longer repeat an action you did not intend to allow anymore.
 
@@ -96,6 +96,7 @@ Anything that is marked as something that Neuro will directly receive is added t
 - Context messages ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#context))
 - Action descriptions & schemas ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#action))
 - Action force state & query ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#force-actions))
+    - These are the only ones that can be *removed* from context, with the `ephemeral_context` parameter.
 - Action result messages ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#action-result))
 
-It is unknown how the other fields are handled. Additionally, the action force state & query are the only ones that can be *removed* from context, with the `ephemeral_context` parameter.
+It is unknown how the other fields are handled.
