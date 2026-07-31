@@ -52,7 +52,7 @@ However much would make for the best content.
 
 (Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43)
 
-## When should I return a message with an `action/result`?
+## When should I attach a message to an `action/result`?
 
 (Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43)
 
