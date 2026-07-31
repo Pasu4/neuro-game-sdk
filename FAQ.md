@@ -36,7 +36,9 @@ She can handle a decent amount, but sending too much ([such as the directory tre
 
 ## How should the `state` of `actions/force` be formatted?
 
-(Waiting on https://github.com/VedalAI/neuro-game-sdk/issues/43)
+Any format that is serializable to text is accepted, however it is generally recommended to format `state` as Markdown.
+
+[Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#force-actions)
 
 ## How much assistance should Neuro get?
 
@@ -68,9 +70,32 @@ This depends on the `priority` parameter of the `actions/force`.
 
 (Waiting on https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-2854385371)
 
+## How do I prevent Neuro from using a specific action without running into race conditions?
+
+You can unregister actions before sending an action result. This ensures that by the time Neuro receives the result, she can no longer repeat an action you did not intend to allow anymore.
+
+[Source](https://github.com/VedalAI/neuro-sdk/tree/main/API/README.md#unregister-disposable-actions-before-sending-result)
+
 ## How long can I wait to send back an `action/result`?
 
 The `action/result` must be sent *as soon as possible*, meaning the only delay should be caused by network latency.
 
 [Source 1](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#action-result)
 | [Source 2 (unofficial)](https://github.com/VedalAI/neuro-sdk/issues/43#issuecomment-3276628168)
+
+## Does a `silent: false` context packet guarantee that there will be a response?
+
+No, the parameter simply changes how likely it is for Neuro to respond. It is not a guarantee.
+
+[Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#context)
+
+## What text that I send is added to her context?
+
+Anything that is marked as something that Neuro will directly receive is added to her context. As of writing, this includes:
+
+- Context messages ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#context))
+- Action descriptions & schemas ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#action))
+- Action force state & query ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#force-actions))
+- Action result messages ([Source](https://github.com/VedalAI/neuro-sdk/blob/main/API/SPECIFICATION.md#action-result))
+
+It is unknown how the other fields are handled. Additionally, the action force state & query are the only ones that can be *removed* from context, with the `ephemeral_context` parameter.
